@@ -19,16 +19,26 @@ Không cần API key, không cần tự chuẩn bị dữ liệu: notebook tự 
 
 ---
 
-## Bắt đầu nhanh
+## Bắt đầu nhanh — Lightning AI Studio
 
-1. Bấm nút **Open in Colab** ở trên, rồi `File → Save a copy in Drive` để có bản của riêng bạn.
-   (Nếu nút không mở được, tải file `.ipynb` về và dùng `File → Upload notebook` trên [Colab](https://colab.research.google.com).)
-2. `Runtime → Change runtime type → T4 GPU`.
-3. Chạy lần lượt 5 ô của **Phần 0**. Ô thứ tư tải toàn bộ weights và dataset; hãy chạy nó trong giờ nghỉ.
-4. Làm từ Phần 1 đến Phần 4 theo thứ tự. Các phần sau dùng lại hàm bạn viết ở phần trước.
+**Bản này đã hoàn thành các hàm TODO, `FLIP_IDX`, Q1–Q12 và AP bonus.** Các câu cần kết quả thực nghiệm tự lấy số liệu từ lần chạy hiện tại. Q11 phân tích các lỗi định vị, cấu trúc hoặc bỏ sót/đảo trái-phải từ GT và dự đoán; ảnh minh hoạ, câu trả lời và thống kê từng ảnh được lưu trong `submission/analysis/`. Thí nghiệm 4C và bài tập về nhà vẫn là phần bonus tuỳ chọn.
 
-Notebook cố định `ultralytics==8.4.171`. Không có GPU thì notebook vẫn chạy, nhưng Phần 4 tự giảm xuống 3 epoch và kết quả
-fine-tune sẽ không dùng được để nộp.
+1. Tạo hoặc mở [Lightning AI Studio](https://lightning.ai/), upload `lab_2d_perception_student.ipynb` vào thư mục dự án (hoặc clone repo của bạn).
+2. Mở notebook bằng JupyterLab hoặc VS Code của Studio và chọn kernel Python của Studio.
+3. Chạy ô cài đặt đầu tiên (`%pip install ...`). Nếu vừa cài hoặc đổi phiên bản package, **Restart Kernel** rồi chạy từ ô import.
+4. Chuyển Studio sang máy **GPU**. Nếu vừa chuyển máy, Restart Kernel rồi chạy lại từ ô import. Kiểm tra `device = cuda`, tên GPU và `✅ CUDA + torchvision NMS hoạt động`.
+5. Chạy các ô còn lại của **Phần 0** để tải weights và dataset (khoảng 0,8 GB), rồi làm Phần 1–4 theo thứ tự.
+
+Sau khi cài đặt và Restart Kernel, có thể chạy toàn bộ các ô từ ô import đến cuối notebook. Ô cuối kiểm tra các mục bắt buộc và tạo `submission.zip`; lưu notebook còn nguyên output trước khi tải bài nộp. Số liệu latency, mAP và ví dụ lỗi phụ thuộc GPU và kết quả train, không được điền sẵn bằng số giả.
+
+Studio cung cấp VS Code/JupyterLab và lưu môi trường, dữ liệu trong thư mục home của Studio; xem [tài liệu Lightning AI](https://lightning.ai/docs/overview/ai-studio/).
+Nên đặt repo trong thư mục home của Studio và mở notebook từ chính thư mục repo. Notebook lưu dataset vào `datasets/`, kết quả train vào `runs_lab/`, bài nộp vào `submission/` và `submission.zip` trong thư mục làm việc được in ở Phần 0.
+
+Notebook cố định `ultralytics==8.4.171` và dùng bản PyTorch/CUDA của Studio. Ô import kiểm tra CUDA và torchvision NMS trước khi tải weights.
+`BATCH_SIZE` mặc định là 16 với GPU từ 12 GB VRAM, 4 với GPU nhỏ hơn; có thể giảm biến này nếu hết bộ nhớ. `WORKERS` mặc định là 2 trên Linux.
+Phần 4 yêu cầu GPU và giữ **40 epoch, imgsz 640** theo rubric; CPU chỉ dùng chạy thử các phần trước.
+
+Nếu dùng Colab, nút ở đầu README vẫn mở được notebook; chọn T4 GPU trước khi chạy.
 
 ---
 
@@ -128,9 +138,9 @@ Chạy 5 ô. Bạn đã sẵn sàng khi thấy dòng `device = cuda`, dòng `�
 
 Xem [`rubric.md`](rubric.md) (100 điểm lõi + 20 bonus).
 
-1. `Runtime → Restart session and run all`, chờ chạy hết, không ô nào báo lỗi.
+1. `Restart Kernel and Run All Cells`, chờ chạy hết, không ô nào báo lỗi, rồi lưu notebook để giữ output.
 2. Chạy ô cuối. Ô này tạo thư mục `submission/` và file `submission.zip`, gồm `ket_qua.json` và `autolabel/bus.txt`.
-3. Tải về **notebook đã chạy** (`File → Download → Download .ipynb`) và **`submission.zip`** (biểu tượng 📁 ở cột trái của Colab), rồi giải nén.
+3. Tải về **notebook đã chạy** và **`submission.zip`** từ trình duyệt file của Lightning AI Studio (chuột phải → Download), rồi giải nén.
 4. Đẩy notebook và thư mục `submission/` lên repo GitHub **public** của bạn:
    `<username-của-bạn>/Track04-Day18-2D-perception-detection-segmentation-keypoints` (fork hoặc repo mới).
 5. Dán URL repo vào ô LMS Ngày 18. **Không mở PR.** Giữ repo public cho đến khi có điểm; repo private = 0 điểm.
@@ -141,13 +151,13 @@ Xem [`rubric.md`](rubric.md) (100 điểm lõi + 20 bonus).
 
 | Hiện tượng | Cách xử lý |
 |---|---|
-| `⚠️ Không thấy GPU` ở Phần 0 | `Runtime → Change runtime type → T4 GPU`, rồi chạy lại từ đầu. |
+| `⚠️ Không thấy GPU` ở Phần 0 | Chuyển Lightning AI Studio sang máy GPU, Restart Kernel rồi chạy lại từ ô import. |
 | `⛔ Mục 1B chưa xong: ...` | Đây là ô chốt, không phải lỗi hệ thống. Kéo lên ô TODO, đọc dòng ❌, mở 💡 gợi ý. Hết giờ thì dùng phao. |
 | `❌ ... — còn 2 chỗ ... chưa điền` | Hàm vẫn còn dấu `...`. Điền hết rồi chạy lại chính ô đó. |
 | Sửa code rồi mà vẫn ❌ | Bạn phải **chạy lại ô TODO** (Shift + Enter) thì hàm mới được định nghĩa lại. |
 | Ô tải weights báo lỗi mạng | Chạy lại ô đó; các file đã tải xong sẽ không tải lại. |
-| `CUDA out of memory` ở 4B | `Runtime → Restart session and run all`. Nếu vẫn lỗi, đổi `batch=16` thành `batch=8` trong ô train. |
-| Colab ngắt kết nối giữa chừng | Kết nối lại và `Run all`. Các câu trả lời Q1–Q12 nằm trong notebook nên không mất, miễn là bạn đang làm trên bản đã lưu vào Drive. |
+| `CUDA out of memory` ở 4B | `Restart Kernel and Run All Cells`. Nếu vẫn lỗi, giảm `BATCH_SIZE` ở Phần 0 xuống 8 hoặc 4; biến này dùng chung cho train và val. |
+| Studio/kernel khởi động lại giữa chừng | Mở lại notebook đã lưu, kiểm tra Studio đang dùng GPU, rồi chạy lại các ô theo thứ tự. Câu trả lời Q1–Q12 đã lưu vẫn còn; biến trong bộ nhớ phải tạo lại. |
 
 ---
 
